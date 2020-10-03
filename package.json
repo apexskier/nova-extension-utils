@@ -7,6 +7,9 @@
     "./dependency-management": "./dst/dependencyManagement",
     "./async": "./dst/async"
   },
+  "files": [
+    "./dst"
+  ],
   "repository": "git@github.com:apexskier/nova-extension-utils.git",
   "author": "Cameron Little <cameron@camlittle.com>",
   "license": "MIT",
@@ -24,7 +27,8 @@
     "fix": "concurrently 'yarn:fix:*'",
     "fix:eslint": "eslint --fix --ignore-path .gitignore \"**/*.{ts,js}\"",
     "fix:prettier": "prettier --ignore-path .gitignore --write \"**/*.{ts,js,json,md}\"",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "prepack": "yarn clean && yarn lint && yarn test && yarn build"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
