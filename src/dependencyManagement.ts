@@ -13,7 +13,7 @@ export function getDependencyDirectory(): string {
   return nova.path.join(
     nova.extension.globalStoragePath,
     "dependencyManagement"
-  ); 
+  );
 }
 
 // https://github.com/es-shims/String.prototype.trimEnd/blob/master/implementation.js
