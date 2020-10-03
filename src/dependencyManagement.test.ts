@@ -3,7 +3,7 @@ declare const global: any;
 import {
   installWrappedDependencies,
   registerDependencyUnlockCommand,
-  dependencyDirectory,
+  getDependencyDirectory,
 } from "./dependencyManagement";
 
 const F_OK = Symbol("F_OK");
@@ -25,7 +25,7 @@ const F_OK = Symbol("F_OK");
 jest.useFakeTimers();
 
 test("dependencyDirectory", () => {
-  expect(dependencyDirectory).toBe("/globalStorage/dependencyManagement");
+  expect(getDependencyDirectory()).toBe("/globalStorage/dependencyManagement");
 });
 
 describe("unlock command", () => {

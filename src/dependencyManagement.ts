@@ -1,5 +1,5 @@
 async function clearLock() {
-  const lockFilePath = nova.path.join(dependencyDirectory, "LOCK");
+  const lockFilePath = nova.path.join(getDependencyDirectory(), "LOCK");
   nova.fs.remove(lockFilePath);
 }
 
@@ -7,10 +7,14 @@ export function registerDependencyUnlockCommand(command: string) {
   nova.commands.register(command, clearLock);
 }
 
-export const dependencyDirectory = nova.path.join(
-  nova.extension.globalStoragePath,
-  "dependencyManagement"
-);
+// note: the reason this isn't a normal string export is because it relies on the nova global
+// in tests, this can be annoying
+export function getDependencyDirectory(): string {
+  return nova.path.join(
+    nova.extension.globalStoragePath,
+    "dependencyManagement"
+  ); 
+}
 
 // https://github.com/es-shims/String.prototype.trimEnd/blob/master/implementation.js
 // eslint-disable-next-line no-control-regex
@@ -23,6 +27,7 @@ function trimRight(str: string) {
 export async function installWrappedDependencies(
   compositeDisposable: CompositeDisposable
 ) {
+  const dependencyDirectory = getDependencyDirectory();
   let done = false;
   nova.fs.mkdir(dependencyDirectory);
 

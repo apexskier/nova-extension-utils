@@ -18,9 +18,9 @@ This is an async function that handles installation. Call it during extension ac
 
 Registers a global command that will force unlock. Not required, but can be useful to cleanup if crashes happen. Make sure to [define the command](https://docs.nova.app/extensions/commands/) to give users access.
 
-#### `dependencyDirectory`
+#### `getDependencyDirectory`
 
-The path to the directory containing the installed `node_modules` directory.
+Returns a path to the directory containing the installed `node_modules` directory.
 
 <details>
 
@@ -39,7 +39,7 @@ async function asyncActivate() {
   await dependencyManagement.installWrappedDependencies(compositeDisposable);
 
   const execPath = nova.path.join(
-    dependencyManagement.dependencyDirectory,
+    dependencyManagement.getDependencyDirectory(),
     "node_modules",
     ".bin",
     "executable"
