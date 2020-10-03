@@ -1,0 +1,43 @@
+{
+  "name": "nova-extension-utils",
+  "version": "1.0.0",
+  "description": "Shared utilites for developing Nova.app extensions",
+  "main": "./dst/index.js",
+  "exports": {
+    "./dependency-management": "./dst/dependencyManagement",
+    "./async": "./dst/async"
+  },
+  "repository": "git@github.com:apexskier/nova-extension-utils.git",
+  "author": "Cameron Little <cameron@camlittle.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/apexskier/nova-typescript/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dst",
+    "test": "jest",
+    "lint": "concurrently 'yarn:lint:*'",
+    "lint:eslint": "eslint --ignore-path .gitignore \"**/*.{ts,js}\"",
+    "lint:prettier": "prettier --ignore-path .gitignore --check \"**/*.{ts,js,json,md}\"",
+    "lint:json": "find . -name node_modules -prune -false -o -type f -name '*.json' -exec node -e 'require(\"{}\")' \\;",
+    "fix": "concurrently 'yarn:fix:*'",
+    "fix:eslint": "eslint --fix --ignore-path .gitignore \"**/*.{ts,js}\"",
+    "fix:prettier": "prettier --ignore-path .gitignore --write \"**/*.{ts,js,json,md}\"",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "@types/nova-editor": "^1.0.0",
+    "@types/nova-editor-node": "^1.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.10.0",
+    "eslint-plugin-nova": "^1.1.0",
+    "jest": "^26.4.2",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
+    "typescript": "^4.0.3"
+  }
+}
