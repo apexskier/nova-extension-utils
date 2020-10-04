@@ -180,7 +180,7 @@ describe("dependencyManagement", () => {
     expect(nova.fs.remove).not.toBeCalled();
   });
 
-  it("fails if installation fails", async () => {
+  it("fails if installation fails, clearing lock", async () => {
     global.console.warn = jest.fn();
     ProcessMock.mockImplementationOnce(() => ({
       onStdout: jest.fn(),
@@ -201,6 +201,8 @@ describe("dependencyManagement", () => {
 
             reason"
           `);
+
+    expectLockCleared();
   });
 
   it("hooks a disposable that can cancel and cleanup", async () => {

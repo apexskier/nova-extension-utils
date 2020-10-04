@@ -28,7 +28,20 @@ export async function installWrappedDependencies(
   compositeDisposable: CompositeDisposable
 ) {
   const dependencyDirectory = getDependencyDirectory();
-  let done = false;
+
+  function copyForInstall(file: string) {
+    try {
+      const src = nova.path.join(nova.extension.path, file);
+      const dst = nova.path.join(dependencyDirectory, file);
+      if (nova.fs.access(dst, nova.fs.constants.F_OK)) {
+        nova.fs.remove(dst);
+      }
+      nova.fs.copy(src, dst);
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
   nova.fs.mkdir(dependencyDirectory);
 
   // since this extension can run from multiple workspaces, we need to lock this directory to avoid
@@ -54,57 +67,48 @@ export async function installWrappedDependencies(
   }
   lockFile.close();
 
-  function copyForInstall(file: string) {
-    try {
-      const src = nova.path.join(nova.extension.path, file);
-      const dst = nova.path.join(dependencyDirectory, file);
-      if (nova.fs.access(dst, nova.fs.constants.F_OK)) {
-        nova.fs.remove(dst);
-      }
-      nova.fs.copy(src, dst);
-    } catch (err) {
-      console.warn(err);
-    }
-  }
+  let done = false;
 
-  copyForInstall("npm-shrinkwrap.json");
-  copyForInstall("package.json");
+  try {
+    copyForInstall("npm-shrinkwrap.json");
+    copyForInstall("package.json");
 
-  await new Promise((resolve, reject) => {
-    const process = new Process("/usr/bin/env", {
-      args: ["npm", "install"],
-      cwd: dependencyDirectory,
-      stdio: ["ignore", "pipe", "pipe"],
-      env: {
-        NO_UPDATE_NOTIFIER: "true",
-      },
-    });
-    let errOutput = "";
-    if (nova.inDevMode()) {
-      process.onStdout((o) => console.log("installing:", trimRight(o)));
-    }
-    process.onStderr((e) => {
-      console.warn("installing:", trimRight(e));
-      errOutput += e;
-    });
-    process.onDidExit((status) => {
-      if (status === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Failed to install:\n\n${errOutput}`));
+    await new Promise((resolve, reject) => {
+      const process = new Process("/usr/bin/env", {
+        args: ["npm", "install"],
+        cwd: dependencyDirectory,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: {
+          NO_UPDATE_NOTIFIER: "true",
+        },
+      });
+      let errOutput = "";
+      if (nova.inDevMode()) {
+        process.onStdout((o) => console.log("installing:", trimRight(o)));
       }
-    });
-    compositeDisposable.add({
-      dispose() {
-        if (!done) {
-          clearLock();
-          process.terminate();
+      process.onStderr((e) => {
+        console.warn("installing:", trimRight(e));
+        errOutput += e;
+      });
+      process.onDidExit((status) => {
+        if (status === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Failed to install:\n\n${errOutput}`));
         }
-      },
+      });
+      compositeDisposable.add({
+        dispose() {
+          if (!done) {
+            clearLock();
+            process.terminate();
+          }
+        },
+      });
+      process.start();
     });
-    process.start();
-  });
-
-  clearLock();
-  done = true;
+  } finally {
+    clearLock();
+    done = true;
+  }
 }
