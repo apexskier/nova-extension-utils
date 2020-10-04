@@ -6,7 +6,7 @@ This package provides sharable utilities for building [Nova](http://nova.app) ex
 
 ### `installWrappedDependencies`
 
-This function provides a concurrent-safe, reproducible mechanism for installing external nodejs dependencies executed by your extension, without bundling them within the extension artifact and increasing extension size. This is especially useful in dev, as it won't trigger reloads of the extension recursively.
+This function provides a concurrent-safe, reproducible, non-global-polluting mechanism for installing external nodejs dependencies executed by your extension, without bundling them within the extension artifact and increasing extension size. This is especially useful in dev, as it won't trigger reloads of the extension recursively.
 
 To use it, you _must_ have a valid [`package.json`](https://docs.npmjs.com/files/package.json) and [`npm-shrinkwrap.json`](https://docs.npmjs.com/configuring-npm/shrinkwrap-json.html) file in your `.novaextension` directory. They'll be copied into your extension's global storage and used to install dependencies specified in the shrinkwrap file. An atomic file lock is used to prevent multiple workspaces writing over each other.
 
