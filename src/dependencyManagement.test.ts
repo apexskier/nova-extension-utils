@@ -144,7 +144,7 @@ describe("dependencyManagement", () => {
     expectLockCleared();
   });
 
-  it("removes npm meta files first before replacing them", async () => {
+  it("waits for lock to be cleared, and doesn't install, if already locked", async () => {
     (nova.fs.open as jest.Mock).mockReset().mockImplementationOnce(() => {
       throw new Error("locked");
     });
@@ -206,6 +206,32 @@ describe("dependencyManagement", () => {
           `);
 
     expectLockCleared();
+  });
+
+  it("removes npm meta files first before replacing them", async () => {
+    ProcessMock.mockImplementationOnce(() => ({
+      onStdout: jest.fn(),
+      onStderr: jest.fn(),
+      onDidExit: jest.fn((cb) => {
+        cb(0);
+        return { dispose: jest.fn() };
+      }),
+      start: jest.fn(),
+    }));
+    (nova.fs.access as jest.Mock).mockReset().mockImplementation(() => true);
+
+    await installWrappedDependencies(compositeDisposable);
+
+    expect(nova.fs.remove).toBeCalledTimes(3);
+    expect(nova.fs.remove).toBeCalledWith(
+      "/globalStorage/dependencyManagement/npm-shrinkwrap.json"
+    );
+    expect(nova.fs.remove).toBeCalledWith(
+      "/globalStorage/dependencyManagement/package.json"
+    );
+    expect(nova.fs.remove).toBeCalledWith(
+      "/globalStorage/dependencyManagement/LOCK"
+    );
   });
 
   it("hooks a disposable that can cancel and cleanup", async () => {
