@@ -16,7 +16,7 @@ This is an async function that handles installation. Call it during extension ac
 
 1. A [composite disposable](https://docs.nova.app/api-reference/composite-disposable/) that on disposal kills the installation process and unlocks. Be sure to dispose when the extension deactivates.
 2. An optional options object with the optional properties.
-   - `console` an object who's properties override those of [`Console`](https://docs.nova.app/api-reference/console/)
+   - `console` an object who's properties override those of [`Console`](https://docs.nova.app/api-reference/console/). Pass `null` to fully disable `console` calls.
 
 #### `registerDependencyUnlockCommand`
 

@@ -25,7 +25,7 @@ function trimRight(str: string) {
 }
 
 interface InstallationOptions {
-  console?: Partial<Console>;
+  console?: Partial<Console> | null;
 }
 
 const globalConsole = console;
@@ -34,7 +34,10 @@ export async function installWrappedDependencies(
   compositeDisposable: CompositeDisposable,
   options: InstallationOptions = {}
 ) {
-  const console = Object.assign({}, globalConsole, options.console);
+  const console =
+    options.console === null
+      ? null
+      : Object.assign({}, globalConsole, options.console);
 
   const dependencyDirectory = getDependencyDirectory();
 
@@ -47,7 +50,7 @@ export async function installWrappedDependencies(
       }
       nova.fs.copy(src, dst);
     } catch (err) {
-      console.warn(err);
+      console?.warn(err);
     }
   }
 
@@ -60,9 +63,9 @@ export async function installWrappedDependencies(
   try {
     // claim a lock
     lockFile = nova.fs.open(lockFilePath, "x");
-    console.log("claimed lock");
+    console?.log("claimed lock");
   } catch (err) {
-    console.log("already locked");
+    console?.log("already locked");
     // expected error if file is already present, aka a lock has been acquired
     // wait until it's gone. That indicates another workspace has completed the install
     // note: can't use file watcher here since it's workspace relative
@@ -92,9 +95,9 @@ export async function installWrappedDependencies(
         },
       });
       let errOutput = "";
-      process.onStdout((o) => console.info("installing:", trimRight(o)));
+      process.onStdout((o) => console?.info("installing:", trimRight(o)));
       process.onStderr((e) => {
-        console.warn("installing:", trimRight(e));
+        console?.warn("installing:", trimRight(e));
         errOutput += e;
       });
       process.onDidExit((status) => {

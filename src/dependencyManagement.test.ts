@@ -284,4 +284,32 @@ describe("dependencyManagement", () => {
     expectLockCleared();
     expect(terminate).toBeCalledTimes(1);
   });
+
+  it("won't emit console logs when disabled", async () => {
+    ProcessMock.mockImplementationOnce(() => ({
+      onStdout: jest.fn(),
+      onStderr: jest.fn(),
+      onDidExit: jest.fn((cb) => {
+        cb(0);
+        return { dispose: jest.fn() };
+      }),
+      start: jest.fn(),
+    }));
+
+    const globalConsoleLog = global.console.log;
+    const globalConsoleInfo = global.console.info;
+    const globalConsoleWarn = global.console.warn;
+
+    global.console.log = jest.fn(() => fail());
+    global.console.info = jest.fn(() => fail());
+    global.console.warn = jest.fn(() => fail());
+
+    await installWrappedDependencies(compositeDisposable, {
+      console: null,
+    });
+
+    global.console.log = globalConsoleLog;
+    global.console.info = globalConsoleInfo;
+    global.console.warn = globalConsoleWarn;
+  });
 });
