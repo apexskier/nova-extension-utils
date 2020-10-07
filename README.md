@@ -12,7 +12,11 @@ To use it, you _must_ have a valid [`package.json`](https://docs.npmjs.com/files
 
 #### `installWrappedDependencies`
 
-This is an async function that handles installation. Call it during extension activation. It takes a single parameter: a [composite disposable](https://docs.nova.app/api-reference/composite-disposable/) that on disposal kills the installation process and unlocks. Be sure to dispose when the extension deactivates.
+This is an async function that handles installation. Call it during extension activation. It takes a two parameters
+
+1. A [composite disposable](https://docs.nova.app/api-reference/composite-disposable/) that on disposal kills the installation process and unlocks. Be sure to dispose when the extension deactivates.
+2. An optional options object with the optional properties.
+   - `console` an object who's properties override those of [`Console`](https://docs.nova.app/api-reference/console/)
 
 #### `registerDependencyUnlockCommand`
 
@@ -36,7 +40,13 @@ dependencyManagement.registerDependencyUnlockCommand(
 );
 
 async function asyncActivate() {
-  await dependencyManagement.installWrappedDependencies(compositeDisposable);
+  await dependencyManagement.installWrappedDependencies(compositeDisposable, {
+    console: {
+      log(...args: Array<unknown>) {
+        console.log("dependency management:", ...args);
+      },
+    },
+  });
 
   const execPath = nova.path.join(
     dependencyManagement.getDependencyDirectory(),
