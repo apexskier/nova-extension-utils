@@ -37,7 +37,10 @@ describe("unlock command", () => {
       expect.any(Function)
     );
 
-    console.log((nova.commands.register as jest.Mock).mock.calls[0][1]);
+    const clearLock = (nova.commands.register as jest.Mock).mock.calls[0][1];
+
+    clearLock();
+    expect(nova.fs.remove).toBeCalledWith(`${getDependencyDirectory()}/LOCK`);
   });
 });
 
