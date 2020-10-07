@@ -49,7 +49,6 @@ describe("dependencyManagement", () => {
     add: jest.fn(),
   } as any) as CompositeDisposable;
   const mockFile = { close: jest.fn() };
-  global.console.log = jest.fn();
   nova.fs.open = jest.fn();
   nova.fs.copy = jest.fn();
   nova.fs.remove = jest.fn();
@@ -68,6 +67,12 @@ describe("dependencyManagement", () => {
   }));
   (global as any).Process = ProcessMock;
 
+  const mockConsole: Partial<Console> = {
+    log: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+  };
+
   beforeEach(() => {
     (compositeDisposable.add as jest.Mock).mockReset();
     (nova.fs.open as jest.Mock)
@@ -79,6 +84,8 @@ describe("dependencyManagement", () => {
     (nova.fs.access as jest.Mock).mockReset();
     mockFile.close.mockReset();
     ProcessMock.mockReset();
+    (mockConsole.log as jest.Mock).mockReset();
+    (mockConsole.warn as jest.Mock).mockReset();
   });
 
   function expectLockCleared() {
@@ -90,7 +97,10 @@ describe("dependencyManagement", () => {
 
   it("installs dependencies into extension global storage, and locks globally while doing so", async () => {
     ProcessMock.mockImplementationOnce(() => ({
-      onStdout: jest.fn(),
+      onStdout: jest.fn((cb) => {
+        cb("installation message");
+        return { dispose: jest.fn() };
+      }),
       onStderr: jest.fn(),
       onDidExit: jest.fn((cb) => {
         cb(0);
@@ -99,7 +109,9 @@ describe("dependencyManagement", () => {
       start: jest.fn(),
     }));
 
-    await installWrappedDependencies(compositeDisposable);
+    await installWrappedDependencies(compositeDisposable, {
+      console: mockConsole,
+    });
 
     expect(nova.fs.mkdir).toBeCalledTimes(1);
     expect(nova.fs.mkdir).toBeCalledWith("/globalStorage/dependencyManagement");
@@ -140,7 +152,14 @@ describe("dependencyManagement", () => {
         NO_UPDATE_NOTIFIER: "true",
       },
     });
+    expect(mockConsole.info).toBeCalledTimes(1);
+    expect(mockConsole.info).toBeCalledWith(
+      "installing:",
+      "installation message"
+    );
     expect(compositeDisposable.add).toBeCalledTimes(1);
+    expect(mockConsole.log).toBeCalledTimes(1);
+    expect(mockConsole.log).toBeCalledWith("claimed lock");
     expectLockCleared();
   });
 
@@ -154,7 +173,9 @@ describe("dependencyManagement", () => {
       .mockImplementationOnce(() => true)
       .mockImplementationOnce(() => false);
 
-    const p = installWrappedDependencies(compositeDisposable);
+    const p = installWrappedDependencies(compositeDisposable, {
+      console: mockConsole,
+    });
 
     expect(nova.fs.open).toBeCalledTimes(1);
     expect(nova.fs.open).toBeCalledWith(
@@ -184,7 +205,6 @@ describe("dependencyManagement", () => {
   });
 
   it("fails if installation fails, clearing lock", async () => {
-    global.console.warn = jest.fn();
     ProcessMock.mockImplementationOnce(() => ({
       onStdout: jest.fn(),
       onStderr: jest.fn((cb) => {
@@ -198,14 +218,16 @@ describe("dependencyManagement", () => {
       start: jest.fn(),
     }));
 
-    await expect(installWrappedDependencies(compositeDisposable)).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(
+      installWrappedDependencies(compositeDisposable, { console: mockConsole })
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
             "Failed to install:
 
             reason"
           `);
 
     expectLockCleared();
+    expect(mockConsole.warn).toBeCalledWith("installing:", "reason");
   });
 
   it("removes npm meta files first before replacing them", async () => {
@@ -220,7 +242,9 @@ describe("dependencyManagement", () => {
     }));
     (nova.fs.access as jest.Mock).mockReset().mockImplementation(() => true);
 
-    await installWrappedDependencies(compositeDisposable);
+    await installWrappedDependencies(compositeDisposable, {
+      console: mockConsole,
+    });
 
     expect(nova.fs.remove).toBeCalledTimes(3);
     expect(nova.fs.remove).toBeCalledWith(
@@ -232,6 +256,8 @@ describe("dependencyManagement", () => {
     expect(nova.fs.remove).toBeCalledWith(
       "/globalStorage/dependencyManagement/LOCK"
     );
+
+    expect(mockConsole.warn).not.toBeCalled();
   });
 
   it("hooks a disposable that can cancel and cleanup", async () => {
@@ -246,7 +272,7 @@ describe("dependencyManagement", () => {
       terminate,
     }));
 
-    installWrappedDependencies(compositeDisposable);
+    installWrappedDependencies(compositeDisposable, { console: mockConsole });
 
     expect(nova.fs.remove).not.toBeCalled();
     expect(terminate).not.toBeCalled();
