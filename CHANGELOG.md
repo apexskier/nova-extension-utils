@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add ability to override console calls
+- Add ability to override or disable console calls
 
 ## v1.0.3
 
