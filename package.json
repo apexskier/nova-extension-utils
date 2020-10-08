@@ -1,6 +1,6 @@
 {
   "name": "nova-extension-utils",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Shared utilites for developing Nova.app extensions",
   "main": "./dst/index.js",
   "exports": {
