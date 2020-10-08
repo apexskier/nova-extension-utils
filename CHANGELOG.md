@@ -1,5 +1,11 @@
 # Changelog
 
+## future
+
+### Added
+
+- Add ability to override or disable console calls
+
 ## v1.0.3
 
 ### Fixed
