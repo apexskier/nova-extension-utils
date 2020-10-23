@@ -1,5 +1,11 @@
 # Changelog
 
+## future
+
+### Fixed
+
+- Fix errors with global Console object in Nova 2
+
 ## v1.1.0
 
 ### Added

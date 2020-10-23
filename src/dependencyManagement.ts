@@ -28,16 +28,30 @@ interface InstallationOptions {
   console?: Partial<Console> | null;
 }
 
-const globalConsole = console;
-
 export async function installWrappedDependencies(
   compositeDisposable: CompositeDisposable,
   options: InstallationOptions = {}
 ) {
-  const console =
+  const boundGlobalConsole: typeof console = {
+    assert: console.assert.bind(console),
+    clear: console.clear.bind(console),
+    log: console.log.bind(console),
+    info: console.info.bind(console),
+    warn: console.warn.bind(console),
+    error: console.error.bind(console),
+    group: console.group.bind(console),
+    groupEnd: console.groupEnd.bind(console),
+    count: console.count.bind(console),
+    time: console.time.bind(console),
+    timeEnd: console.timeEnd.bind(console),
+    timeStamp: console.timeStamp?.bind(console),
+    trace: console.trace.bind(console),
+  };
+
+  const logger =
     options.console === null
       ? null
-      : Object.assign({}, globalConsole, options.console);
+      : Object.assign({}, boundGlobalConsole, options.console);
 
   const dependencyDirectory = getDependencyDirectory();
 
@@ -50,7 +64,7 @@ export async function installWrappedDependencies(
       }
       nova.fs.copy(src, dst);
     } catch (err) {
-      console?.warn(err);
+      logger?.warn(err);
     }
   }
 
@@ -63,9 +77,9 @@ export async function installWrappedDependencies(
   try {
     // claim a lock
     lockFile = nova.fs.open(lockFilePath, "x");
-    console?.log("claimed lock");
+    logger?.log("claimed lock");
   } catch (err) {
-    console?.log("already locked");
+    logger?.log("already locked");
     // expected error if file is already present, aka a lock has been acquired
     // wait until it's gone. That indicates another workspace has completed the install
     // note: can't use file watcher here since it's workspace relative
@@ -95,9 +109,9 @@ export async function installWrappedDependencies(
         },
       });
       let errOutput = "";
-      process.onStdout((o) => console?.info("installing:", trimRight(o)));
+      process.onStdout((o) => logger?.info("installing:", trimRight(o)));
       process.onStderr((e) => {
-        console?.warn("installing:", trimRight(e));
+        logger?.warn("installing:", trimRight(e));
         errOutput += e;
       });
       process.onDidExit((status) => {
