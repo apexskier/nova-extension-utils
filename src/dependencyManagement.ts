@@ -98,7 +98,6 @@ export async function installWrappedDependencies(
       logger?.log("unlocked cleanly");
     } catch (err) {
       logger?.warn("unlocked", (err as Error).message);
-      console.log(err);
       clearLock();
       // recurse
       await installWrappedDependencies(compositeDisposable, options);
@@ -135,7 +134,7 @@ export async function installWrappedDependencies(
           dispose() {
             clearLock();
             process.terminate();
-reject(new Error("ps cancelled by disposable"));
+            reject(new Error("ps cancelled by disposable"));
           },
         });
         process.start();

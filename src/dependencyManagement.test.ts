@@ -24,8 +24,6 @@ const F_OK = Symbol("F_OK");
 
 jest.useFakeTimers();
 
-const setImmediate = setTimeout as any as typeof global.setImmediate;
-
 test("dependencyDirectory", () => {
   expect(getDependencyDirectory()).toBe("/globalStorage/dependencyManagement");
 });
@@ -168,15 +166,15 @@ describe("dependencyManagement", () => {
   });
 
   describe("waits for lock to be cleared", () => {
-    it.skip("and doesn't install if already locked", async () => {
+    it("doesn't install if already locked and exits cleanly once unlocked", async () => {
       mockFile.read.mockImplementation(() => "PID");
       (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
-          if (mode == "x") {
-            throw new Error("locked");
-          } else {
-            return mockFile;
-          }
-        });
+        if (mode == "x") {
+          throw new Error("locked");
+        } else {
+          return mockFile;
+        }
+      });
       (nova.fs.stat as jest.Mock) = jest.fn(() => ({ mtime: new Date() }));
       (nova.fs.access as jest.Mock) = jest.fn(() => true);
       ProcessMock.mockReset().mockImplementation(() => ({
@@ -186,11 +184,11 @@ describe("dependencyManagement", () => {
         }),
         start: jest.fn(),
       }));
-  
+
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
       });
-  
+
       expect(nova.fs.open).toBeCalledTimes(1);
       // called once to try claiming lock
       expect(nova.fs.open).toBeCalledWith(
@@ -198,7 +196,7 @@ describe("dependencyManagement", () => {
         "x"
       );
       expect(nova.fs.access).not.toBeCalled();
-      
+
       async function verifyUnlockChecks(n: number) {
         // clean unlock
         expect(nova.fs.access).toBeCalledTimes(n);
@@ -206,27 +204,29 @@ describe("dependencyManagement", () => {
           "/globalStorage/dependencyManagement/LOCK",
           F_OK
         );
-        
+
         // pid unlock
         expect(nova.fs.open).toBeCalledTimes(n + 1);
-        expect(nova.fs.open).toHaveBeenLastCalledWith("/globalStorage/dependencyManagement/LOCK");
+        expect(nova.fs.open).toHaveBeenLastCalledWith(
+          "/globalStorage/dependencyManagement/LOCK"
+        );
         expect(mockFile.close).toBeCalledTimes(n);
         expect(Process).toBeCalledTimes(n);
         expect(Process).toHaveBeenLastCalledWith("/usr/bin/env", {
           args: ["ps", "-p", "PID"],
           stdio: "ignore",
         });
-    
+
         // flush pid check process
-        await new Promise(setImmediate);
-    
+        await Promise.resolve();
+
         // expiry unlock
         expect(nova.fs.stat).toBeCalledTimes(n);
         expect(nova.fs.stat).toHaveBeenLastCalledWith(
           "/globalStorage/dependencyManagement/LOCK"
         );
       }
-  
+
       // every half second, checks if lock is cleared
       jest.runTimersToTime(500);
       await verifyUnlockChecks(1);
@@ -234,61 +234,75 @@ describe("dependencyManagement", () => {
       await verifyUnlockChecks(2);
       jest.runTimersToTime(500);
       await verifyUnlockChecks(3);
-  
+
       expect(nova.fs.copy).not.toBeCalled();
-      expect(nova.fs.remove).not.toBeCalledWith("/globalStorage/dependencyManagement/LOCK");
-      
+      expect(nova.fs.remove).not.toBeCalledWith(
+        "/globalStorage/dependencyManagement/LOCK"
+      );
+
+      // unlock!
+      (nova.fs.access as jest.Mock) = jest.fn(() => false);
+
+      jest.runAllTimers();
+
       await p;
+
+      expect(nova.fs.remove).not.toBeCalledWith(
+        "/globalStorage/dependencyManagement/LOCK"
+      );
     });
-    
+
     it("and exits cleanly once unlocked", async () => {
       (mockFile as any).read = jest.fn(() => "PID");
-      (nova.fs.open as jest.Mock)
-        .mockImplementation((_, mode) => {
-          if (mode == "x") {
-            throw new Error("locked");
-          } else {
-            return mockFile;
-          }
-        });
+      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
+        if (mode == "x") {
+          throw new Error("locked");
+        } else {
+          return mockFile;
+        }
+      });
       (nova.fs.access as jest.Mock) = jest.fn(() => false);
-  
+
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
       });
-  
-      jest.runAllTimers()
-      
+
+      jest.runAllTimers();
+
       await p;
-  
-      expect(nova.fs.remove).not.toBeCalledWith("/globalStorage/dependencyManagement/LOCK");
+
+      expect(nova.fs.remove).not.toBeCalledWith(
+        "/globalStorage/dependencyManagement/LOCK"
+      );
     });
-    
+
     it("and restarts if install crashes", async () => {
       (mockFile as any).read = jest.fn(() => "PID");
-      (nova.fs.open as jest.Mock)
-        .mockImplementation((_, mode) => {
-          if (mode == "x") {
-            throw new Error("locked");
-          } else {
-            return mockFile;
-          }
-        });
-        (nova.fs.access as jest.Mock) = jest.fn().mockImplementationOnce(() => true).mockImplementationOnce(() => false);
-        ProcessMock.mockImplementation(() => ({
-          onDidExit: jest.fn((cb) => {
-            cb(1);
-            return { dispose: jest.fn() };
-          }),
-          start: jest.fn(),
-        }));
-  
+      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
+        if (mode == "x") {
+          throw new Error("locked");
+        } else {
+          return mockFile;
+        }
+      });
+      (nova.fs.access as jest.Mock) = jest
+        .fn()
+        .mockImplementationOnce(() => true)
+        .mockImplementationOnce(() => false);
+      ProcessMock.mockImplementation(() => ({
+        onDidExit: jest.fn((cb) => {
+          cb(1);
+          return { dispose: jest.fn() };
+        }),
+        start: jest.fn(),
+      }));
+
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
       });
-  
+
       jest.runAllTimers();
-      
+
       // There's a problem with jest timer mocking
       // asyncSetTimeout invokes a timer internally. p awaits on that. Therefore, awaiting p depends on a
       // timer internally, but I need to run the timer after p has started being awaited on
@@ -297,35 +311,57 @@ describe("dependencyManagement", () => {
         expect(nova.fs.access).toBeCalledTimes(1);
         expectLockCleared();
         cb();
-      }
-      
+      };
+
       await p;
-      
+
       global.setTimeout = globalSetTimeout;
-      
+
+      expect(mockConsole.warn).toBeCalledTimes(1);
+      expect(mockConsole.warn).toBeCalledWith(
+        "unlocked",
+        "install process not running"
+      );
+
       // install was attempted a second time
       expect(nova.fs.access).toBeCalledTimes(2);
     });
-    
-    it.skip("and restarts after lockfile expires", async () => {
-      (mockFile as any).read = jest.fn(() => "PID");
-      (nova.fs.open as jest.Mock)
-        .mockImplementation((_, mode) => {
-          if (mode == "x") {
-            throw new Error("locked");
-          } else {
-            return mockFile;
-          }
-        });
-        (nova.fs.stat as jest.Mock) = jest.fn(() => ({ mtime: new Date(new Date().getTime() - (5 * 60 * 1000) - 1) }));
-      (nova.fs.access as jest.Mock) = jest.fn(() => true);
-  
+
+    it("and restarts after lockfile expires", async () => {
+      mockFile.read.mockImplementation(() => "PID");
+      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
+        if (mode == "x") {
+          throw new Error("locked");
+        } else {
+          return mockFile;
+        }
+      });
+      (nova.fs.stat as jest.Mock) = jest.fn(() => ({
+        mtime: new Date(new Date().getTime() - 5 * 60 * 1000 - 1),
+      }));
+      (nova.fs.access as jest.Mock) = jest
+        .fn()
+        .mockImplementationOnce(() => true)
+        .mockImplementationOnce(() => false);
+      ProcessMock.mockReset().mockImplementation(() => ({
+        onDidExit: jest.fn((cb) => {
+          cb(0);
+          return { dispose: jest.fn() };
+        }),
+        start: jest.fn(),
+      }));
+
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
       });
-  
-      jest.runAllTimers()
-      
+
+      jest.runAllTimers();
+
+      expect(nova.fs.copy).not.toBeCalled();
+      expect(nova.fs.remove).not.toBeCalledWith(
+        "/globalStorage/dependencyManagement/LOCK"
+      );
+
       // There's a problem with jest timer mocking
       // asyncSetTimeout invokes a timer internally. p awaits on that. Therefore, awaiting p depends on a
       // timer internally, but I need to run the timer after p has started being awaited on
@@ -334,16 +370,23 @@ describe("dependencyManagement", () => {
         expect(nova.fs.access).toBeCalledTimes(1);
         expectLockCleared();
         cb();
-      }
-      
+      };
+
       await p;
-      
+
       global.setTimeout = globalSetTimeout;
-  
-      expect(nova.fs.remove).not.toBeCalledWith("/globalStorage/dependencyManagement/LOCK");
+
+      expect(mockConsole.warn).toBeCalledTimes(1);
+      expect(mockConsole.warn).toBeCalledWith(
+        "unlocked",
+        "lockfile is too old"
+      );
+
+      // install was attempted a second time
+      expect(nova.fs.access).toBeCalledTimes(2);
     });
   });
-  
+
   it("fails if installation fails, clearing lock", async () => {
     ProcessMock.mockImplementationOnce(() => ({
       onStdout: jest.fn(),
@@ -415,7 +458,9 @@ describe("dependencyManagement", () => {
     }));
     (nova.fs.open as jest.Mock).mockImplementationOnce(() => mockFile);
 
-    const p = installWrappedDependencies(compositeDisposable, { console: mockConsole });
+    const p = installWrappedDependencies(compositeDisposable, {
+      console: mockConsole,
+    });
 
     expect(nova.fs.remove).not.toBeCalled();
     expect(terminate).not.toBeCalled();
@@ -426,8 +471,10 @@ describe("dependencyManagement", () => {
 
     expectLockCleared();
     expect(terminate).toBeCalledTimes(1);
-    
-    await expect(p).rejects.toEqual(new Error("install cancelled by disposable"));
+
+    await expect(p).rejects.toEqual(
+      new Error("install cancelled by disposable")
+    );
   });
 
   it("won't emit console logs when disabled", async () => {
