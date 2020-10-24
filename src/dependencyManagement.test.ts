@@ -166,7 +166,7 @@ describe("dependencyManagement", () => {
   });
 
   describe("waits for lock to be cleared", () => {
-    it("doesn't install if already locked and exits cleanly once unlocked", async () => {
+    beforeEach(() => {
       mockFile.read.mockImplementation(() => "PID");
       (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
         if (mode == "x") {
@@ -175,8 +175,6 @@ describe("dependencyManagement", () => {
           return mockFile;
         }
       });
-      (nova.fs.stat as jest.Mock) = jest.fn(() => ({ mtime: new Date() }));
-      (nova.fs.access as jest.Mock) = jest.fn(() => true);
       ProcessMock.mockReset().mockImplementation(() => ({
         onDidExit: jest.fn((cb) => {
           cb(0);
@@ -184,6 +182,11 @@ describe("dependencyManagement", () => {
         }),
         start: jest.fn(),
       }));
+      (nova.fs.stat as jest.Mock) = jest.fn(() => ({ mtime: new Date() }));
+    });
+
+    it("doesn't install if already locked and exits cleanly once unlocked", async () => {
+      (nova.fs.access as jest.Mock) = jest.fn(() => true);
 
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
@@ -252,39 +255,7 @@ describe("dependencyManagement", () => {
       );
     });
 
-    it("and exits cleanly once unlocked", async () => {
-      (mockFile as any).read = jest.fn(() => "PID");
-      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
-        if (mode == "x") {
-          throw new Error("locked");
-        } else {
-          return mockFile;
-        }
-      });
-      (nova.fs.access as jest.Mock) = jest.fn(() => false);
-
-      const p = installWrappedDependencies(compositeDisposable, {
-        console: mockConsole,
-      });
-
-      jest.runAllTimers();
-
-      await p;
-
-      expect(nova.fs.remove).not.toBeCalledWith(
-        "/globalStorage/dependencyManagement/LOCK"
-      );
-    });
-
     it("and restarts if install crashes", async () => {
-      (mockFile as any).read = jest.fn(() => "PID");
-      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
-        if (mode == "x") {
-          throw new Error("locked");
-        } else {
-          return mockFile;
-        }
-      });
       (nova.fs.access as jest.Mock) = jest
         .fn()
         .mockImplementationOnce(() => true)
@@ -328,14 +299,6 @@ describe("dependencyManagement", () => {
     });
 
     it("and restarts after lockfile expires", async () => {
-      mockFile.read.mockImplementation(() => "PID");
-      (nova.fs.open as jest.Mock).mockImplementation((_, mode) => {
-        if (mode == "x") {
-          throw new Error("locked");
-        } else {
-          return mockFile;
-        }
-      });
       (nova.fs.stat as jest.Mock) = jest.fn(() => ({
         mtime: new Date(new Date().getTime() - 5 * 60 * 1000 - 1),
       }));
@@ -343,13 +306,6 @@ describe("dependencyManagement", () => {
         .fn()
         .mockImplementationOnce(() => true)
         .mockImplementationOnce(() => false);
-      ProcessMock.mockReset().mockImplementation(() => ({
-        onDidExit: jest.fn((cb) => {
-          cb(0);
-          return { dispose: jest.fn() };
-        }),
-        start: jest.fn(),
-      }));
 
       const p = installWrappedDependencies(compositeDisposable, {
         console: mockConsole,
