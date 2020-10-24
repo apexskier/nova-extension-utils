@@ -2,6 +2,10 @@
 
 ## future
 
+### Added
+
+- Path cleaning utility
+
 ### Fixed
 
 - Fix errors with global Console object in Nova 2

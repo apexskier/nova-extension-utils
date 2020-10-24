@@ -109,3 +109,19 @@ async function foo(items: lspTypes.CompletionItem[]) {
 ```
 
 </details>
+
+### `cleanPath`
+
+Function to nicely format paths and file URIs for user-display. Replaces `$HOME` with `~/`, removes volume and `file://`, and replaces workspace path with `./`.
+
+<details>
+
+<summary>Example of use</summary>
+
+```ts
+import { cleanPath } from "nova-extension-utils";
+
+console.log(cleanPath(editor.document.uri));
+```
+
+</details>
