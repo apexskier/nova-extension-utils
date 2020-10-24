@@ -14,7 +14,7 @@ You can use [yarn linking](https://classic.yarnpkg.com/en/docs/cli/link/) to ins
 
 This project has comprehensive tests using [Jest](http://jestjs.io). Because this project isn't run directly, it's important that any changes are tested. Remember that the Jest test environment is _not_ the Nova execution environment, so many things will need to be mocked.
 
-You can debug using tests---see the [Jest troubleshooting documentation](https://jestjs.io/docs/en/troubleshooting).
+You can debug using tests—see the [Jest troubleshooting documentation](https://jestjs.io/docs/en/troubleshooting).
 
 ## Pull Requests
 
