@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.1
+
+- Fix bad publish
+
 ## v1.2.0
 
 ### Added
