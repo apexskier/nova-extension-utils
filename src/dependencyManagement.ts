@@ -1,3 +1,8 @@
+async function clearLock() {
+  const lockFilePath = nova.path.join(getDependencyDirectory(), "LOCK");
+  nova.fs.remove(lockFilePath);
+}
+
 export function registerDependencyUnlockCommand(command: string) {
   nova.commands.register(command, clearLock);
 }
@@ -9,11 +14,6 @@ export function getDependencyDirectory(): string {
     nova.extension.globalStoragePath,
     "dependencyManagement"
   );
-}
-
-async function clearLock() {
-  const lockFilePath = nova.path.join(getDependencyDirectory(), "LOCK");
-  nova.fs.remove(lockFilePath);
 }
 
 // https://github.com/es-shims/String.prototype.trimEnd/blob/master/implementation.js
