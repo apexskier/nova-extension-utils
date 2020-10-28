@@ -14,5 +14,6 @@
     }
   },
   "identifier": "3735023F-0F79-4B2D-8EC9-DAE3ABF0A9EF",
-  "openLogOnRun": "fail"
+  "openLogOnRun": "fail",
+  "persistent": true
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## future
+
+### Fixed
+
+- Better dependency management locking error recovery
+
 ## v1.2.1
 
 - Fix bad publish
