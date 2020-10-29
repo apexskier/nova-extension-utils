@@ -20,7 +20,8 @@ A clear and concise description of what you expected to happen.
 
 **Environment**
 
-- Nova version: <!-- [e.g. 1.0 (200961)] get this from Nova > About Nova -->
+- `nova-extension-utils` version: <!-- e.g. 1.2.2 -->
+- Nova version: <!-- [e.g. 2 (213794)] get this from Nova > About Nova -->
 - macOS version: <!-- [e.g. 10.15.5 (19F101)] get this from  > About This Mac -->
 - NodeJS information:
   - node version: <!-- [e.g. v14.4.0] get this by running `node --version` in your terminal -->
