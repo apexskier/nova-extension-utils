@@ -10,6 +10,7 @@
   "files": [
     "./dst"
   ],
+  "homepage": "https://github.com/apexskier/nova-extension-utils#readme",
   "repository": "git@github.com:apexskier/nova-extension-utils.git",
   "author": "Cameron Little <cameron@camlittle.com>",
   "license": "MIT",
