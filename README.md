@@ -125,3 +125,51 @@ console.log(cleanPath(editor.document.uri));
 ```
 
 </details>
+
+### `preferences`
+
+#### `getOverridableBoolean`
+
+This provides a common pattern to have a boolean preference that can be set globally or per-workspace, but allows the workspace to override the global preference. The user has the ability to set a preference globally, but they can override it in each workspace. I recommend defaulting to the least-destructive/mutating action globally, to help make it easier to work in shared codebases.
+
+This expects the preference to be set up properly in your extension manifest. You'll configure a global-level boolean (with any default value), and a workspace-level enum (with three possible values of "null", "false", and "true" and a default of "null") with the same preference key.
+
+<details>
+
+```json
+{
+  "config": [
+    {
+      "key": "apexskier.example.config.myPreference",
+      "title": "Example",
+      "type": "boolean",
+      "default": false
+    }
+  ],
+
+  "configWorkspace": [
+    {
+      "key": "apexskier.example.config.myPreference",
+      "title": "Example",
+      "type": "enum",
+      "values": [
+        ["null", "Inherit from Global Settings"],
+        ["false", "Disable"],
+        ["true", "Enable"]
+      ],
+      "default": "null"
+    }
+  ]
+}
+```
+
+```ts
+import { preferences } from "nova-extension-utils";
+
+const defaultPrefValue = false;
+const prefValue: boolean =
+  preferences.getOverridableBoolean("apexskier.example.config.myPreference") ??
+  defaultPrefValue;
+```
+
+</details>

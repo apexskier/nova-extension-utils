@@ -1,5 +1,11 @@
 # Changelog
 
+## future
+
+### Added
+
+- Utility for overridable boolean preferences
+
 ## v1.2.2
 
 ### Fixed
