@@ -160,7 +160,7 @@ export async function installWrappedDependencies(
     copyForInstall("npm-shrinkwrap.json");
     copyForInstall("package.json");
 
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const process = new Process("/usr/bin/env", {
         args: ["npm", "install"],
         cwd: dependencyDirectory,
