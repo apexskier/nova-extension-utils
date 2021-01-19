@@ -54,9 +54,9 @@ describe("dependencyManagement", () => {
   nova.fs.remove = jest.fn();
   nova.fs.mkdir = jest.fn();
   nova.fs.access = jest.fn();
-  const ProcessMock: jest.Mock<Partial<
-    Process
-  >> = jest.fn().mockImplementationOnce(() => ({
+  const ProcessMock: jest.Mock<
+    Partial<Process>
+  > = jest.fn().mockImplementationOnce(() => ({
     onStdout: jest.fn(),
     onStderr: jest.fn(),
     onDidExit: jest.fn((cb) => {
