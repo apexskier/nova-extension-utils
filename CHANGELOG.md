@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.0
+
+### Fixed
+
+- Fix package entry points (support rollup node-resolve v11)
+
+### Changed
+
+- Optimize dependency installation (--no-audit)
+
 ## v1.3.0
 
 ### Added
