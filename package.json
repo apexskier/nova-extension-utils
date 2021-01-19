@@ -4,8 +4,10 @@
   "description": "Shared utilites for developing Nova.app extensions",
   "main": "./dst/index.js",
   "exports": {
+    ".": "./dst/index.js",
     "./dependency-management": "./dst/dependencyManagement",
-    "./async": "./dst/async"
+    "./async": "./dst/async",
+    "./cleanPath": "./dst/cleanPath"
   },
   "files": [
     "./dst"
