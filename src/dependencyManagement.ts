@@ -162,7 +162,7 @@ export async function installWrappedDependencies(
 
     await new Promise<void>((resolve, reject) => {
       const process = new Process("/usr/bin/env", {
-        args: ["npm", "install"],
+        args: ["npm", "install", "--no-audit"],
         cwd: dependencyDirectory,
         stdio: ["ignore", "pipe", "pipe"],
         env: {

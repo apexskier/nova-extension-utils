@@ -146,7 +146,7 @@ describe("dependencyManagement", () => {
     );
     expect(Process).toBeCalledTimes(1);
     expect(Process).toHaveBeenCalledWith("/usr/bin/env", {
-      args: ["npm", "install"],
+      args: ["npm", "install", "--no-audit"],
       cwd: "/globalStorage/dependencyManagement",
       stdio: ["ignore", "pipe", "pipe"],
       env: {
