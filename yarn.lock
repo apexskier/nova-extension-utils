@@ -580,9 +580,9 @@
     "@types/istanbul-lib-report" "*"
 
 "@types/jest@^26.0.14":
-  version "26.0.22"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.22.tgz#8308a1debdf1b807aa47be2838acdcd91e88fbe6"
-  integrity sha512-eeWwWjlqxvBxc4oQdkueW5OF/gtfSceKk4OnOAGlUSwS/liBRtZppbJuz1YkgbrbfGOoeBHun9fOvXnjNwrSOw==
+  version "26.0.23"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.23.tgz#a1b7eab3c503b80451d019efb588ec63522ee4e7"
+  integrity sha512-ZHLmWMJ9jJ9PTiT58juykZpL7KjwJywFN3Rr2pTSkyQfydf/rk22yS7W8p5DaVUMQ2BQC7oYiU3FjbTM/mYrOA==
   dependencies:
     jest-diff "^26.0.0"
     pretty-format "^26.0.0"
@@ -602,10 +602,10 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/nova-editor-node@*", "@types/nova-editor-node@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/nova-editor-node/-/nova-editor-node-3.0.0.tgz#12f1afd191f9b2b94b8e03a9af3cff836e642022"
-  integrity sha512-rXTJHVKbV4w7J9ZjRkaMpDtDtx0Op0Vn2FLTZF6qVKvYCe942ZGy7M2fAggIiQlr5M2MGIfY0X5NYU8w1QGDDQ==
+"@types/nova-editor-node@*", "@types/nova-editor-node@^4.1.2":
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/@types/nova-editor-node/-/nova-editor-node-4.1.2.tgz#af0e82c2743d17a12ba6f2bd5131422b0ce1ec50"
+  integrity sha512-72Q39rlBS//sNWmzb31pqmp1FJW7fHg9AwBrykNadrblP5K2Ltm4l9Lokcf6IS3ZFJDkLudZ+qmmkoUB3qcxrA==
 
 "@types/nova-editor@^1.0.0":
   version "1.0.0"
