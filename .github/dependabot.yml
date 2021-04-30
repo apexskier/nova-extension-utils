@@ -6,12 +6,3 @@ updates:
     interval: weekly
     time: "01:00"
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: concurrently
-    versions:
-    - 6.0.0
-    - 6.0.1
-  - dependency-name: eslint-config-prettier
-    versions:
-    - 8.0.0
-    - 8.1.0
