@@ -45,26 +45,26 @@ describe("unlock command", () => {
 });
 
 describe("dependencyManagement", () => {
-  const compositeDisposable = ({
+  const compositeDisposable = {
     add: jest.fn(),
-  } as any) as CompositeDisposable;
+  } as any as CompositeDisposable;
   const mockFile = { close: jest.fn(), read: jest.fn(), write: jest.fn() };
   nova.fs.open = jest.fn();
   nova.fs.copy = jest.fn();
   nova.fs.remove = jest.fn();
   nova.fs.mkdir = jest.fn();
   nova.fs.access = jest.fn();
-  const ProcessMock: jest.Mock<
-    Partial<Process>
-  > = jest.fn().mockImplementationOnce(() => ({
-    onStdout: jest.fn(),
-    onStderr: jest.fn(),
-    onDidExit: jest.fn((cb) => {
-      cb(0);
-      return { dispose: jest.fn() };
-    }),
-    start: jest.fn(),
-  }));
+  const ProcessMock: jest.Mock<Partial<Process>> = jest
+    .fn()
+    .mockImplementationOnce(() => ({
+      onStdout: jest.fn(),
+      onStderr: jest.fn(),
+      onDidExit: jest.fn((cb) => {
+        cb(0);
+        return { dispose: jest.fn() };
+      }),
+      start: jest.fn(),
+    }));
   (global as any).Process = ProcessMock;
 
   const mockConsole: Partial<Console> = {
