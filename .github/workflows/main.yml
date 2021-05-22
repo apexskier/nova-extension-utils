@@ -3,30 +3,34 @@ name: CI
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
-    branches:
-    - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v1
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v1
+        with:
+          node-version: "15"
 
-    - name: Install dependencies
-      run: yarn
+      - name: Install dependencies
+        run: yarn
 
-    - name: Lint
-      run: yarn lint
+      - name: Lint
+        run: yarn lint
 
-    - name: Build
-      run: yarn build
+      - name: Test
+        run: yarn test
 
-    - name: Test
-      run: yarn test
+      - name: Build
+        run: yarn build
 
+      - name: Ensure clean
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"

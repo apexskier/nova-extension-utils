@@ -29,7 +29,7 @@
     "lint:json": "find . -name node_modules -prune -false -o -type f -name '*.json' -exec node -e 'require(\"{}\")' \\;",
     "fix": "concurrently 'yarn:fix:*'",
     "fix:eslint": "eslint --fix --ignore-path .gitignore \"**/*.{ts,js}\"",
-    "fix:prettier": "prettier --ignore-path .gitignore --write \"**/*.{ts,js,json,md}\"",
+    "fix:prettier": "prettier --ignore-path .gitignore --write \"**/*.{ts,js,json,md,yml,yaml}\"",
     "watch": "tsc --watch",
     "prepack": "yarn clean && yarn lint && yarn test && yarn build"
   },
