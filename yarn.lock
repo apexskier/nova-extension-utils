@@ -616,10 +616,10 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/nova-editor-node@*", "@types/nova-editor-node@^4.1.2":
-  version "4.1.4"
-  resolved "https://registry.yarnpkg.com/@types/nova-editor-node/-/nova-editor-node-4.1.4.tgz#07a94f087f4502e25cf339b48c4abd59979b4c0e"
-  integrity sha512-DXvcePojOn009iUrx95LbAQGuYIWCIWX9BqE67do3KKk/JDSqdp0YqftcxHIHo5wPYAtemcUQ7UVd1jKlyv3KA==
+"@types/nova-editor-node@*", "@types/nova-editor-node@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/nova-editor-node/-/nova-editor-node-5.0.0.tgz#96b056682328b47fb0235e3f5bfc5d20324b2a6d"
+  integrity sha512-YaaVxe+ao9qa0VOEppanVU0rNy+n6+yUhCSL6gRBiYSi3XCCS9wQrjJ0Mj2uK3APRPPuOcCCLUTvNMNPcw1FWg==
 
 "@types/nova-editor@^1.0.0":
   version "1.0.1"
